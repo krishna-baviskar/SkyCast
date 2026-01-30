@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced 3D Weather Application with Real-time Forecasts">
+    <title>SkyCast - Weather Forecast</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Orbitron:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background">
+        <div class="weather-particles" id="weatherParticles"></div>
+        <canvas id="backgroundCanvas"></canvas>
+    </div>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="weather-icon-3d">
+                <i class="fas fa-cloud-sun"></i>
+            </div>
+            <h2>Loading Weather Data...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-cloud-sun-rain"></i>
+                    <span>SkyCast</span>
+                </div>
+
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-page="current">
+                        <i class="fas fa-home"></i>
+                        <span>Current</span>
+                    </button>
+                    <button class="nav-btn" data-page="forecast">
+                        <i class="fas fa-calendar-days"></i>
+                        <span>Forecast</span>
+                    </button>
+                    <button class="nav-btn" data-page="hourly">
+                        <i class="fas fa-clock"></i>
+                        <span>Hourly</span>
+                    </button>
+                    <button class="nav-btn" data-page="maps">
+                        <i class="fas fa-map"></i>
+                        <span>Maps</span>
+                    </button>
+                    <button class="nav-btn" data-page="compare">
+                        <i class="fas fa-arrows-left-right"></i>
+                        <span>Compare</span>
+                    </button>
+                    <button class="nav-btn" data-page="history">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </button>
+                </nav>
+
+                <div class="header-actions">
+                    <button class="icon-btn" id="themeToggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="icon-btn" id="notificationBtn" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="icon-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Bar -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-bar-3d">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="cityInput" placeholder="Search for any city worldwide..." autocomplete="off">
+                    <button class="voice-btn" id="voiceBtn" title="Voice Search">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+
+                <div class="search-actions">
+                    <button class="search-btn" id="searchBtn">
+                        <i class="fas fa-magnifying-glass"></i>
+                        Search
+                    </button>
+                    <button class="location-btn" id="locationBtn" title="Use My Location">
+                        <i class="fas fa-location-crosshairs"></i>
+                        My Location
+                    </button>
+                </div>
+
+                <!-- Search Suggestions -->
+                <div class="search-suggestions" id="searchSuggestions"></div>
+            </div>
+
+            <!-- Quick Access Cities -->
+            <div class="quick-cities">
+                <button class="quick-city" data-city="New York">🗽 New York</button>
+                <button class="quick-city" data-city="London">🏛️ London</button>
+                <button class="quick-city" data-city="Tokyo">🗼 Tokyo</button>
+                <button class="quick-city" data-city="Paris">🗼 Paris</button>
+                <button class="quick-city" data-city="Dubai">🏙️ Dubai</button>
+                <button class="quick-city" data-city="Sydney">🏖️ Sydney</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Current Weather Page -->
+            <div class="page active" id="currentPage">
+
+                <!-- Hero Weather Card -->
+                <div class="hero-weather-card">
+                    <div class="weather-3d-scene">
+                        <div class="weather-icon-large" id="weatherIcon3D">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                    </div>
+
+                    <div class="hero-weather-info">
+                        <div class="location-info">
+                            <h1 id="cityName">Select a City</h1>
+                            <p id="countryName">Start by searching for a location</p>
+                            <p class="timestamp" id="timestamp"></p>
+                        </div>
+
+                        <div class="temperature-display">
+                            <div class="temp-main">
+                                <span id="mainTemp">--</span>
+                                <span class="temp-unit">°C</span>
+                            </div>
+                            <div class="temp-details">
+                                <p id="weatherDescription">---</p>
+                                <p class="feels-like">Feels like <span id="feelsLike">--</span>°C</p>
+                            </div>
+                        </div>
+
+                        <div class="temp-range">
+                            <div class="temp-range-item">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="tempMax">--</span>°
+                            </div>
+                            <div class="temp-range-divider"></div>
+                            <div class="temp-range-item">
+                                <i class="fas fa-arrow-down"></i>
+                                <span id="tempMin">--</span>°
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Stats Grid -->
+                <div class="weather-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-droplet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Humidity</p>
+                            <p class="stat-value" id="humidity">--</p>
+                            <div class="stat-bar">
+                                <div class="stat-fill" id="humidityBar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Wind Speed</p>
+                            <p class="stat-value" id="windSpeed">--</p>
+                            <div class="wind-direction" id="windDirection">
+                                <i class="fas fa-location-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-gauge-high"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Pressure</p>
+                            <p class="stat-value" id="pressure">--</p>
+                            <p class="stat-trend" id="pressureTrend">Normal</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Visibility</p>
+                            <p class="stat-value" id="visibility">--</p>
+                            <div class="stat-bar">
+                                <div class="stat-fill" id="visibilityBar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Cloudiness</p>
+                            <p class="stat-value" id="cloudiness">--</p>
+                            <div class="stat-bar">
+                                <div class="stat-fill" id="cloudinessBar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-temperature-half"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">UV Index</p>
+                            <p class="stat-value" id="uvIndex">--</p>
+                            <p class="stat-badge" id="uvBadge">---</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sun & Moon Card -->
+                <div class="sun-moon-card">
+                    <div class="sun-moon-section">
+                        <div class="sun-moon-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="sun-moon-times">
+                            <div class="time-item">
+                                <i class="fas fa-arrow-up"></i>
+                                <span id="sunrise">--:--</span>
+                            </div>
+                            <div class="time-item">
+                                <i class="fas fa-arrow-down"></i>
+                                <span id="sunset">--:--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="daylight-arc" id="daylightArc">
+                        <canvas id="sunCanvas"></canvas>
+                        <div class="daylight-info">
+                            <p>Daylight: <span id="daylightHours">--</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Air Quality Card -->
+                <div class="air-quality-card">
+                    <h3><i class="fas fa-lungs"></i> Air Quality Index</h3>
+                    <div class="aqi-display">
+                        <div class="aqi-value" id="aqiValue">--</div>
+                        <div class="aqi-info">
+                            <p class="aqi-label" id="aqiLabel">Loading...</p>
+                            <p class="aqi-description" id="aqiDescription">---</p>
+                        </div>
+                    </div>
+                    <div class="aqi-scale">
+                        <div class="aqi-scale-item good">Good</div>
+                        <div class="aqi-scale-item fair">Fair</div>
+                        <div class="aqi-scale-item moderate">Moderate</div>
+                        <div class="aqi-scale-item poor">Poor</div>
+                        <div class="aqi-scale-item very-poor">Very Poor</div>
+                    </div>
+                    <div class="pollutants-grid" id="pollutantsGrid"></div>
+                </div>
+
+                <!-- Smart Weather Advisor -->
+                <div class="advisor-card">
+                    <h3><i class="fas fa-lightbulb"></i> Smart Weather Advisor</h3>
+                    <div class="advisor-content" id="advisorContent">
+                        <p>Search for a city to get personalized weather advice</p>
+                    </div>
+                </div>
+
+                <!-- Weather Alerts -->
+                <div class="alerts-card" id="alertsCard" style="display: none;">
+                    <h3><i class="fas fa-triangle-exclamation"></i> Weather Alerts</h3>
+                    <div class="alerts-content" id="alertsContent"></div>
+                </div>
+            </div>
+
+            <!-- Forecast Page -->
+            <div class="page" id="forecastPage">
+                <div class="page-header">
+                    <h2><i class="fas fa-calendar-days"></i> 7-Day Weather Forecast</h2>
+                    <p>Extended weather predictions with detailed insights</p>
+                </div>
+                <div class="forecast-grid" id="forecastGrid"></div>
+
+                <!-- Temperature Trend Chart -->
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Temperature Trend</h3>
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Hourly Page -->
+            <div class="page" id="hourlyPage">
+                <div class="page-header">
+                    <h2><i class="fas fa-clock"></i> 48-Hour Forecast</h2>
+                    <p>Hour-by-hour weather breakdown</p>
+                </div>
+                <div class="hourly-scroll" id="hourlyScroll"></div>
+
+                <!-- Hourly Charts -->
+                <div class="hourly-charts">
+                    <div class="chart-card">
+                        <h3>Temperature & Feels Like</h3>
+                        <canvas id="hourlyTempChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Precipitation Probability</h3>
+                        <canvas id="hourlyPrecipChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maps Page -->
+            <div class="page" id="mapsPage">
+                <div class="page-header">
+                    <h2><i class="fas fa-map"></i> Weather Maps</h2>
+                    <p>Interactive weather visualization</p>
+                </div>
+
+                <div class="map-controls">
+                    <button class="map-layer-btn active" data-layer="temp">Temperature</button>
+                    <button class="map-layer-btn" data-layer="precipitation">Precipitation</button>
+                    <button class="map-layer-btn" data-layer="clouds">Clouds</button>
+                    <button class="map-layer-btn" data-layer="wind">Wind</button>
+                    <button class="map-layer-btn" data-layer="pressure">Pressure</button>
+                </div>
+
+                <div class="weather-map">
+                    <div id="mapContainer" class="map-placeholder">
+                        <i class="fas fa-map-location-dot"></i>
+                        <p>Weather map visualization</p>
+                        <p class="map-note">Interactive map requires additional API integration</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compare Page -->
+            <div class="page" id="comparePage">
+                <div class="page-header">
+                    <h2><i class="fas fa-arrows-left-right"></i> Compare Cities</h2>
+                    <p>Side-by-side weather comparison</p>
+                </div>
+
+                <div class="compare-search">
+                    <div class="compare-input-group">
+                        <label>City 1</label>
+                        <input type="text" id="compareCity1" placeholder="Enter first city...">
+                        <button onclick="compareCity(1)">Load</button>
+                    </div>
+                    <div class="compare-divider">VS</div>
+                    <div class="compare-input-group">
+                        <label>City 2</label>
+                        <input type="text" id="compareCity2" placeholder="Enter second city...">
+                        <button onclick="compareCity(2)">Load</button>
+                    </div>
+                </div>
+
+                <div class="compare-grid" id="compareGrid"></div>
+            </div>
+
+            <!-- History Page -->
+            <div class="page" id="historyPage">
+                <div class="page-header">
+                    <h2><i class="fas fa-history"></i> Search History & Favorites</h2>
+                    <p>Your recent searches and saved locations</p>
+                </div>
+
+                <!-- Favorites Section -->
+                <div class="favorites-section">
+                    <h3><i class="fas fa-star"></i> Favorite Locations</h3>
+                    <div class="favorites-grid" id="favoritesGrid">
+                        <p class="empty-state">No favorites yet. Click the star icon to add favorites!</p>
+                    </div>
+                </div>
+
+                <!-- Recent Searches -->
+                <div class="history-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-clock-rotate-left"></i> Recent Searches</h3>
+                        <button class="clear-history-btn" id="clearHistoryBtn">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <p class="empty-state">No search history</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Settings</h3>
+                <button class="close-modal" onclick="closeModal('settingsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label>Temperature Unit</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-unit="metric">°C</button>
+                        <button class="toggle-btn" data-unit="imperial">°F</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Wind Speed Unit</label>
+                    <select id="windUnit">
+                        <option value="m/s">m/s</option>
+                        <option value="km/h">km/h</option>
+                        <option value="mph">mph</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Time Format</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-time="24">24h</button>
+                        <button class="toggle-btn" data-time="12">12h</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Weather Animations</label>
+                    <label class="switch">
+                        <input type="checkbox" id="animationsToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>Auto-refresh (minutes)</label>
+                    <input type="number" id="refreshInterval" value="10" min="5" max="60">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('settingsModal')">Cancel</button>
+                <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>© 2026 SkyCast| Powered by OpenWeatherMap API</p>
+                    <p>Made with <i class="fas fa-heart"></i> for weather enthusiasts</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main JavaScript -->
+    <script src="script.js"></script>
+</body>
+
+</html>
