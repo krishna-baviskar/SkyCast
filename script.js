@@ -8,7 +8,7 @@
 
 const CONFIG = {
     // IMPORTANT: Replace with your OpenWeatherMap API key
-    API_KEY: 'YOUR_API_KEY_HERE', // Get your key from https://openweathermap.org/api
+    API_KEY: '4de5ca5c357969b7379429be08a172d2', // Get your key from https://openweathermap.org/api
     
     // API Endpoints
     BASE_URL: 'https://api.openweathermap.org/data/2.5',
