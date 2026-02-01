@@ -1,14 +1,8 @@
-// ============================================
-// WEATHER APP - ADVANCED 3D JAVASCRIPT
-// ============================================
 
-// ============================================
-// CONFIGURATION & CONSTANTS
-// ============================================
 
 const CONFIG = {
-    // IMPORTANT: Replace with your OpenWeatherMap API key
-    API_KEY: '4de5ca5c357969b7379429be08a172d2', // Get your key from https://openweathermap.org/api
+    
+    API_KEY: '4de5ca5c357969b7379429be08a172d2', 
     
     // API Endpoints
     BASE_URL: 'https://api.openweathermap.org/data/2.5',
@@ -75,9 +69,6 @@ const state = {
     }
 };
 
-// ============================================
-// INITIALIZATION
-// ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
@@ -118,9 +109,7 @@ function initializeApp() {
     console.log('✅ App initialized successfully!');
 }
 
-// ============================================
-// EVENT LISTENERS
-// ============================================
+
 
 function setupEventListeners() {
     // Search functionality
@@ -179,9 +168,7 @@ function setupEventListeners() {
     });
 }
 
-// ============================================
-// WEATHER API FUNCTIONS
-// ============================================
+
 
 async function searchCity(cityName) {
     if (!cityName || cityName.trim() === '') {
@@ -277,9 +264,7 @@ async function fetchWeatherByCoords(lat, lon) {
     return await response.json();
 }
 
-// ============================================
-// DISPLAY FUNCTIONS
-// ============================================
+
 
 function displayCurrentWeather(data) {
     // Update location info
